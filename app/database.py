@@ -10,6 +10,7 @@ from os import getenv
 load_dotenv()
 
 DB_URL = getenv('DB_URL')
+print(DB_URL)
 
 if not DB_URL:
     raise ValueError("DB_URL didn't find")

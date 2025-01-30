@@ -1,3 +1,4 @@
+from typing import Annotated
 from securely import Auth
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -59,3 +60,21 @@ async def login(data:UserLogin,db:AsyncSession= Depends(get_async_db)):
             detail='invalid credentials'
         )
     return auth.create_tokens(subject=data.username)
+
+@router.post(
+    '/swagger'
+)
+async def swagger(data:Annotated[OAuth2PasswordRequestForm, Depends()],db:AsyncSession= Depends(get_async_db)):
+    db_user = (await db.execute(select(User).where(User.username == data.username))).scalars().first()
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='invalid credentials'
+        )
+    if not auth.verify_password(plain_password=data.password, hashed_password=db_user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='invalid credentials'
+        )
+    tokens = auth.create_tokens(subject=data.username)
+    return {"access_token": tokens['accessToken'], "token_type": "bearer"}
