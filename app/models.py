@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime
 
 from app.database import Base, engine
 
@@ -10,7 +11,7 @@ class User(Base):
     username: Mapped[str] =mapped_column(unique=True) 
     password: Mapped[str]
 
-    
+
 class WeatherData(Base):
     __tablename__ = 'weather_data'
     
